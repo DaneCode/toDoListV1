@@ -1,7 +1,10 @@
+
 const express = require("express")
 const https = require("https");
 
 const app = express();
+// array for holding list items
+var items = [];
 
 app.use(express.urlencoded({
   extended: true
@@ -10,7 +13,7 @@ app.use(express.urlencoded({
 app.set("view engine", "ejs");
 
 app.get("/", function(req, res){
-  // res.sendFile(__dirname + "/index.html");
+  // code to display the day of the week
   var today = new Date();
 
   var options = {
@@ -20,13 +23,18 @@ app.get("/", function(req, res){
   };
   var day = today.toLocaleDateString("en-US", options);
 
-  res.render("list", {kindOfDay: day});
+  res.render("list", {kindOfDay: day, newListItem: items});
 });
 
 app.post("/", function(req, res){
-  var newTask = req.body.taskInput;
-  console.log(newTask);
-})
+  // targeting input from list.ejs
+  var item = req.body.newItem;
+  // adding item to array
+  items.push(item);
+  // redirect to root
+  res.redirect("/");
+});
+
 app.listen(3000, function(){
   console.log("server listening on port 3000")
 })
