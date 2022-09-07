@@ -4,7 +4,8 @@ const https = require("https");
 
 const app = express();
 // array for holding list items
-var items = [];
+let items = [];
+let workItems = [];
 
 app.use(express.urlencoded({
   extended: true
@@ -14,25 +15,43 @@ app.set("view engine", "ejs");
 
 app.get("/", function(req, res){
   // code to display the day of the week
-  var today = new Date();
+  let today = new Date();
 
-  var options = {
+  let options = {
     weekday: "long",
     day: "numeric",
     month: "long"
   };
-  var day = today.toLocaleDateString("en-US", options);
-
-  res.render("list", {kindOfDay: day, newListItem: items});
+  let day = today.toLocaleDateString("en-US", options);
+// renders the original list for a specific day
+  res.render("list", {listTitle: day, newListItem: items});
 });
-
+// renders a seperate list at the /work directory
+app.get("/work", function(req, res){
+  res.render("list", {listTitle: "Work List", newListItem: workItems});
+});
+// renders an about page
+app.get("/about", function(req,res){
+  res.render("about");
+});
+// root post that allows for redirecting based off of buttons value
 app.post("/", function(req, res){
   // targeting input from list.ejs
-  var item = req.body.newItem;
-  // adding item to array
-  items.push(item);
-  // redirect to root
-  res.redirect("/");
+  let item = req.body.newItem;
+  // checks to see which template we are using
+  if (req.body.list === "Work List"){
+    workItems.push(item)
+    // redirect to work
+    res.redirect("/work");
+  }
+  else {
+    // adding item to array
+    items.push(item);
+    // redirect to root
+    res.redirect("/");
+  }
+
+
 });
 
 app.listen(3000, function(){
