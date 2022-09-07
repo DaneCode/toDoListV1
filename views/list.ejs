@@ -4,47 +4,25 @@
 <head>
   <meta charset="utf-8">
   <title>To Do List</title>
-  <!-- CSS Bootstrap CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <!-- Internal CSS -->
-  <style media="screen">
-    .center-div {
-      position: relative;
-      left: 25%;
-    }
-  </style>
+
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 
 <body>
-  <!-- inline Javascript to push a new line onto the list -->
-  <div class="row">
-    <div class="col-sm-6 center-div">
-      <h1 class="display-1"> <%= kindOfDay %> </h1>
-      <ul id="myList" class="list-group">
-        <% for (var i = 0; i < newListItem.length; i++) { %>
-        <li class="list-group-item"><%= newListItem[i] %></li>
-        <% } %>
-      </ul>
-    </div>
-
+  <div class="box" id="heading">
+    <h1 class=""> <%= kindOfDay %> </h1>
   </div>
-  <!-- Post request, input and submit button for page -->
-  <form class="" action="/" method="post">
-    <div class="row">
-      <div class="col-sm-6 center-div">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <button class="btn btn-dark" type="submit">Add</button>
-          </div>
-          <input type="text" class="form-control" name="newItem" aria-describedby="basic-addon1">
-        </div>
-      </div>
+  <div class="box">
+    <% for (var i = 0; i < newListItem.length; i++) { %>
+    <div class="item">
+      <input type="checkbox">
+      <p><%= newListItem[i] %></p>
     </div>
-  </form>
-  <!-- Javascript scripts -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-</body>
+    <% } %>
+    <form class="item" action="/" method="post">
+      <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
+      <button type="submit" name="button">+</button>
+  </div>
+  </body>
 
 </html>
