@@ -1,11 +1,11 @@
 
 const express = require("express")
 const https = require("https");
-
+const date = require(__dirname + "/date.js")
 const app = express();
 // array for holding list items
-let items = [];
-let workItems = [];
+const items = [];
+const workItems = [];
 
 app.use(express.urlencoded({
   extended: true
@@ -15,14 +15,7 @@ app.set("view engine", "ejs");
 
 app.get("/", function(req, res){
   // code to display the day of the week
-  let today = new Date();
-
-  let options = {
-    weekday: "long",
-    day: "numeric",
-    month: "long"
-  };
-  let day = today.toLocaleDateString("en-US", options);
+  const day = date.getDate();
 // renders the original list for a specific day
   res.render("list", {listTitle: day, newListItem: items});
 });
@@ -37,7 +30,7 @@ app.get("/about", function(req,res){
 // root post that allows for redirecting based off of buttons value
 app.post("/", function(req, res){
   // targeting input from list.ejs
-  let item = req.body.newItem;
+  const item = req.body.newItem;
   // checks to see which template we are using
   if (req.body.list === "Work List"){
     workItems.push(item)
