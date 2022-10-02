@@ -11,13 +11,16 @@ app.set("view engine", "ejs");
 
 // connect to Mongo database
 mongoose.connect("mongodb://localhost:27017/todolistDB");
+
 // database Schema
 const itemsSchema = {
   name: String
 };
+
 // Mongoose Model
 const Item = mongoose.model("Item", itemsSchema);
-// Mongoose Documents
+
+// Mongoose Starting Documents
 const item1 = new Item({
   name: "Welcome to your todolist!"
 });
@@ -28,16 +31,19 @@ const item3 = new Item({
   name: "<-- hit this to delete an item."
 });
 
+// add basic documents to list
 const defaultItems = [item1, item2, item3];
 
+// Schema for custom lists
 const listSchema = {
   name: String,
   items: [itemsSchema]
 };
 
+// custom list model
 const List = mongoose.model("List", listSchema);
 
-
+// function for capitalizing first letter in string
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -115,12 +121,20 @@ app.post("/", (req, res) => {
 // route that deletes list items
 app.post("/delete", (req, res) => {
   const deleteItemId = req.body.deleteItem;
-  Item.findByIdAndRemove(deleteItemId, (err) => {
-    if (!err) {
-      console.log("Successfully deleted Checked Item");
-    };
-    res.redirect("/");
-  })
+  const listName = req.body.listName;
+  if (listName === "Today") {
+    Item.findByIdAndRemove(deleteItemId, (err) => {
+      if (!err) {
+        console.log("Successfully deleted Checked Item");
+      };
+      res.redirect("/");
+    });
+  } else {
+    List.findOneAndUpdate({name: listName},{$pull: {items: {_id: deleteItemId}}}, (err, foundList) => {
+      if (!err)
+      res.redirect("/" + listName);
+    })
+  }
 
 })
 
