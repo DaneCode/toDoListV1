@@ -1,52 +1,130 @@
-
 const express = require("express")
 const https = require("https");
-const date = require(__dirname + "/date.js")
+const mongoose = require("mongoose")
+// const date = require(__dirname + "/date.js")
 const app = express();
-// array for holding list items
-const items = [];
-const workItems = [];
-
 app.use(express.urlencoded({
   extended: true
 }));
 app.use(express.static(__dirname + '/public'));
 app.set("view engine", "ejs");
 
-app.get("/", function(req, res){
-  // code to display the day of the week
-  const day = date.getDate();
-// renders the original list for a specific day
-  res.render("list", {listTitle: day, newListItem: items});
+// connect to Mongo database
+mongoose.connect("mongodb://localhost:27017/todolistDB");
+// database Schema
+const itemsSchema = {
+  name: String
+};
+// Mongoose Model
+const Item = mongoose.model("Item", itemsSchema);
+// Mongoose Documents
+const item1 = new Item({
+  name: "Welcome to your todolist!"
 });
-// renders a seperate list at the /work directory
-app.get("/work", function(req, res){
-  res.render("list", {listTitle: "Work List", newListItem: workItems});
+const item2 = new Item({
+  name: "Hit the + button to add a new item."
 });
+const item3 = new Item({
+  name: "<-- hit this to delete an item."
+});
+
+const defaultItems = [item1, item2, item3];
+
+const listSchema = {
+  name: String,
+  items: [itemsSchema]
+};
+
+const List = mongoose.model("List", listSchema);
+
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+app.get("/", (req, res) => {
+  Item.find({}, (err, foundItems) => {
+    if (foundItems.length === 0) {
+      Item.insertMany(defaultItems, (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Successfully saved")
+        }
+        res.redirect("/");
+      });
+    } else {}
+    res.render("list", {
+      listTitle: "Today",
+      newListItem: foundItems
+    });
+  });
+});
+// renders a seperate list directory
+
+app.get("/:customListName", (req, res) => {
+  const customListName = capitalizeFirstLetter(req.params.customListName);
+  List.findOne({name: customListName}, (err, foundList) => {
+    if (!err) {
+      if (!foundList) {
+        // create new listTitle
+        const list = new List({
+          name: customListName,
+          items: defaultItems
+        });
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        // render existing list
+        res.render("list", {
+          listTitle: foundList.name,
+          newListItem: foundList.items
+        });
+      }
+    }
+  });
+
+});
+
 // renders an about page
-app.get("/about", function(req,res){
+app.get("/about", (req, res) => {
   res.render("about");
 });
-// root post that allows for redirecting based off of buttons value
-app.post("/", function(req, res){
-  // targeting input from list.ejs
-  const item = req.body.newItem;
-  // checks to see which template we are using
-  if (req.body.list === "Work List"){
-    workItems.push(item)
-    // redirect to work
-    res.redirect("/work");
-  }
-  else {
-    // adding item to array
-    items.push(item);
-    // redirect to root
-    res.redirect("/");
-  }
 
+// root post that allows for redirecting based off of buttons value
+app.post("/", (req, res) => {
+  // targeting input from list.ejs
+  const itemName = req.body.newItem;
+  const listName = req.body.list;
+  const item = new Item({
+    name: itemName
+  });
+  if (listName === "Today") {
+    item.save();
+    res.redirect("/");
+  } else {
+    List.findOne({name: listName}, (err, foundList) => {
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/" + listName);
+    });
+  }
 
 });
 
-app.listen(3000, function(){
+// route that deletes list items
+app.post("/delete", (req, res) => {
+  const deleteItemId = req.body.deleteItem;
+  Item.findByIdAndRemove(deleteItemId, (err) => {
+    if (!err) {
+      console.log("Successfully deleted Checked Item");
+    };
+    res.redirect("/");
+  })
+
+})
+
+// Listening for connection
+app.listen(3000, () => {
   console.log("server listening on port 3000")
 })
