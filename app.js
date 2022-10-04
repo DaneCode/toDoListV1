@@ -1,6 +1,7 @@
 const express = require("express")
 const https = require("https");
 const mongoose = require("mongoose")
+const dotenv = require("dotenv").config()
 // const date = require(__dirname + "/date.js")
 const app = express();
 app.use(express.urlencoded({
@@ -9,8 +10,12 @@ app.use(express.urlencoded({
 app.use(express.static(__dirname + '/public'));
 app.set("view engine", "ejs");
 
+// environmental variable
+PASSWORD = process.env.PASSWORD
+URL = process.env.URL
+PORT = process.env.PORT
 // connect to Mongo database
-mongoose.connect("mongodb://localhost:27017/todolistDB");
+mongoose.connect("mongodb+srv://admin-dane:"+PASSWORD+"@"+URL);
 
 // database Schema
 const itemsSchema = {
@@ -139,6 +144,6 @@ app.post("/delete", (req, res) => {
 })
 
 // Listening for connection
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log("server listening on port 3000")
 })
